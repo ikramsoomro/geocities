@@ -34,9 +34,11 @@ public final class Graph {
 			int vertexIndex2 = indexForName(pair.getRight());
 
 			// add v2 to front of v1's adjacency list and
-			adjacencyList[vertexIndex1].setAdjacencyList(new Edge(vertexIndex2, adjacencyList[vertexIndex1].getAdjacencyList()));
+			adjacencyList[vertexIndex1]
+					.setAdjacencyList(new Edge(vertexIndex2, adjacencyList[vertexIndex1].getAdjacencyList()));
 			// add v1 to front of v2's adjacency list
-			adjacencyList[vertexIndex2].setAdjacencyList(new Edge(vertexIndex1, adjacencyList[vertexIndex2].getAdjacencyList()));
+			adjacencyList[vertexIndex2]
+					.setAdjacencyList(new Edge(vertexIndex1, adjacencyList[vertexIndex2].getAdjacencyList()));
 		}
 		this.connectedNodesGroup = getConnectedNodes();
 	}
@@ -65,16 +67,15 @@ public final class Graph {
 		return findFirst.isPresent();
 	}
 
-	private boolean dfs(int vertexIndex, Set<Integer> vistedNodes, Set<Integer> connectedNodes) {
+	private void dfs(int vertexIndex, Set<Integer> vistedNodes, Set<Integer> connectedNodes) {
 		vistedNodes.add(vertexIndex);
 		connectedNodes.add(vertexIndex);
 		int v = vertexIndex;
 		for (Edge edge = adjacencyList[v].getAdjacencyList(); edge != null; edge = edge.getNext()) {
 			if (!vistedNodes.contains(edge.getVertexIndex())) {
-				return dfs(edge.getVertexIndex(), vistedNodes, connectedNodes);
+				dfs(edge.getVertexIndex(), vistedNodes, connectedNodes);
 			}
 		}
-		return false;
 	}
 
 	private Set<Set<Integer>> getConnectedNodes() {
