@@ -1,17 +1,17 @@
 package com.geocities.util.graph;
 
-public final class Vertex {
+public final class Vertex<E> {
 	
-    private final String name;
+    private final E element;
     private Edge adjacencyList;
     
-    Vertex(String name, Edge adjacencyList) {
-            this.name = name;
+    public Vertex(E element, Edge adjacencyList) {
+            this.element = element;
             this.setAdjacencyList(adjacencyList);
     }
 
-	public String getName() {
-		return name;
+	public E getElement() {
+		return element;
 	}
 
 	public Edge getAdjacencyList() {

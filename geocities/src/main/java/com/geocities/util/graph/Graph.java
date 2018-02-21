@@ -13,9 +13,9 @@ import java.util.TreeSet;
  * @author Ikram Soomro
  *
  */
-public final class Graph {
+public final class Graph<E> {
 
-	private final Vertex[] adjacencyList;
+	private final Vertex<E>[] adjacencyList;
 	private final Set<Set<Integer>> connectedNodesGroup;
 
 	public static final String DFS = "DFS";
@@ -26,7 +26,7 @@ public final class Graph {
 	 * @param uniqueElements
 	 * @param pairs
 	 */
-	public Graph(List<String> uniqueElements, Set<Pair<String>> pairs) {
+	public Graph(List<E> uniqueElements, Set<Pair<E>> pairs) {
 		this(uniqueElements, pairs, DFS);
 	}
 
@@ -36,19 +36,20 @@ public final class Graph {
 	 * @param pairs
 	 * @param algorithm
 	 */
-	public Graph(List<String> uniqueElements, Set<Pair<String>> pairs, String algorithm) {
+	@SuppressWarnings("unchecked")
+	public Graph(List<E> uniqueElements, Set<Pair<E>> pairs, String algorithm) {
 
 		adjacencyList = new Vertex[uniqueElements.size()];
 
 		// construct vertices
 		for (int vertexIndex = 0; vertexIndex < adjacencyList.length; vertexIndex++) {
-			adjacencyList[vertexIndex] = new Vertex(uniqueElements.get(vertexIndex), null);
+			adjacencyList[vertexIndex] = new Vertex<E>(uniqueElements.get(vertexIndex), null);
 		}
 
 		// form edges
-		Iterator<Pair<String>> iterator = pairs.iterator();
+		Iterator<Pair<E>> iterator = pairs.iterator();
 		while (iterator.hasNext()) {
-			Pair<String> pair = iterator.next();
+			Pair<E> pair = iterator.next();
 			// read vertex names and translate to vertex numbers
 			int vertexIndex1 = indexForElement(pair.getLeft());
 			int vertexIndex2 = indexForElement(pair.getRight());
@@ -71,9 +72,9 @@ public final class Graph {
 		return connectedNodesGroup;
 	}
 
-	private int indexForElement(String element) {
+	private int indexForElement(E element) {
 		for (int vertexIndex = 0; vertexIndex < adjacencyList.length; vertexIndex++) {
-			if (adjacencyList[vertexIndex].getName().equals(element)) {
+			if (adjacencyList[vertexIndex].getElement().equals(element)) {
 				return vertexIndex;
 			}
 		}
@@ -86,7 +87,7 @@ public final class Graph {
 	 * @param element2
 	 * @return boolean
 	 */
-	public boolean isPathPresent(String element1, String element2) {
+	public boolean isPathPresent(E element1, E element2) {
 		int indexVertex1 = indexForElement(element1);
 		int indexVertex2 = indexForElement(element2);
 		if (indexVertex1 == -1 || indexVertex2 == -1)

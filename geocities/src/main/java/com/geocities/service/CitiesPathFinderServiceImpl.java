@@ -25,7 +25,7 @@ import com.geocities.util.graph.Pair;
 @Component
 public class CitiesPathFinderServiceImpl implements ICitiesPathFinderService {
 
-	private volatile Graph graph;
+	private volatile Graph<String> graph;
 	
 	@Value("${geocities.graph.algorithm}")
 	private String algorithm;
@@ -56,7 +56,7 @@ public class CitiesPathFinderServiceImpl implements ICitiesPathFinderService {
 			cities.add(directlyConnectedCities.getRight());
 		}
 		scanner.close();
-		graph = new Graph(new ArrayList<>(cities), directCities, algorithm);
+		graph = new Graph<>(new ArrayList<>(cities), directCities, algorithm);
 	}
 
 	/**

@@ -21,7 +21,7 @@ public class GraphTest {
 
 		Set<String> uniqueElements = new HashSet<>();
 		pairs.stream().forEach(pair -> { uniqueElements.add(pair.getLeft()); uniqueElements.add(pair.getRight()); });
-		Graph graph = new Graph(new ArrayList<>(uniqueElements), pairs, Graph.DFS);
+		Graph<String> graph = new Graph<String>(new ArrayList<>(uniqueElements), pairs, Graph.DFS);
 		
 		Assert.assertTrue(graph.isPathPresent("Boston", "Newark"));
 		Assert.assertTrue(graph.isPathPresent("Newark", "Boston"));
@@ -53,7 +53,7 @@ public class GraphTest {
 
 		Set<String> uniqueElements = new HashSet<>();
 		pairs.stream().forEach(pair -> { uniqueElements.add(pair.getLeft()); uniqueElements.add(pair.getRight()); });
-		Graph graph = new Graph(new ArrayList<>(uniqueElements), pairs, Graph.BFS);
+		Graph<String> graph = new Graph<String>(new ArrayList<>(uniqueElements), pairs, Graph.BFS);
 		
 		Assert.assertTrue(graph.isPathPresent("Boston", "Newark"));
 		Assert.assertTrue(graph.isPathPresent("Newark", "Boston"));
