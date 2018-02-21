@@ -9,6 +9,7 @@ import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -25,13 +26,24 @@ import com.geocities.util.graph.Pair;
 public class CitiesPathFinderServiceImpl implements ICitiesPathFinderService {
 
 	private volatile Graph graph;
+	
+	@Value("${geocities.graph.algorithm}")
+	private String algorithm;
+	
+	@Value("${geocities.graph.file}")
+	private String file;
 
+
+	/**
+	 * initializes the graph
+	 * @throws IOException
+	 */
 	@PostConstruct
 	public void init() throws IOException {
 		Set<String> cities = new HashSet<>();
 		Set<Pair<String>> directCities = new HashSet<>();
 
-		Resource resource = new ClassPathResource("/cities.txt");
+		Resource resource = new ClassPathResource(file);
 		InputStream resourceAsStream = resource.getInputStream();
 		Scanner scanner = new Scanner(resourceAsStream);
 
@@ -44,9 +56,13 @@ public class CitiesPathFinderServiceImpl implements ICitiesPathFinderService {
 			cities.add(directlyConnectedCities.getRight());
 		}
 		scanner.close();
-		graph = new Graph(new ArrayList<>(cities), directCities);
+		graph = new Graph(new ArrayList<>(cities), directCities, algorithm);
 	}
 
+	/**
+	 * 
+	 * @see com.geocities.service.ICitiesPathFinderService#isPathPresent(java.lang.String, java.lang.String)
+	 */
 	@Override
 	public boolean isPathPresent(String origin, String destination) {
 		return graph.isPathPresent(origin, destination);
