@@ -2,9 +2,9 @@
 spring-boot app which determines if two cities are connected. Two cities are considered connected if there’s a series of roads that can be traveled from one city to another.
 
 
-Note: I have implemented graph traversal using Depth First method.
+Note: I have implemented graph traversal using Depth First and Breadth First method.
 I have tested code with limited set of data due to time limitation, I would like to test with test data having 1000+ cities.
-I can implement using Breadth First also. ~Ikram Soomro
+~Ikram Soomro
 
 
 Coding exercise
@@ -50,7 +50,7 @@ http://localhost:8080/connected?origin=Boston&destination=Newark
 
 Should return yes
 
-http://localhost:8080/connected?origin=Boston&destination= Philadelphia
+http://localhost:8080/connected?origin=Boston&destination=Philadelphia
 
 Should return yes
 
