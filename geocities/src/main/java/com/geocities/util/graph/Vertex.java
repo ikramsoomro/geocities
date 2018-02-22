@@ -3,7 +3,7 @@ package com.geocities.util.graph;
 public final class Vertex<E> {
 	
     private final E element;
-    private Edge adjacencyList;
+    private volatile Edge adjacencyList;
     
     public Vertex(E element, Edge adjacencyList) {
             this.element = element;
