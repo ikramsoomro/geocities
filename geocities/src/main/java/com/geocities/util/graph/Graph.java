@@ -1,5 +1,7 @@
 package com.geocities.util.graph;
 
+import static com.geocities.util.graph.GraphSearchAlgorithm.DEPTH_FIRST_SEARCH;
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -18,8 +20,8 @@ public final class Graph<E> {
 	private final Vertex<E>[] adjacencyList;
 	private final Set<Set<Integer>> connectedNodesGroup;
 
-	public static final String DFS = "DFS";
-	public static final String BFS = "BFS";
+	private final boolean searchRequestTime;
+	private final GraphSearchAlgorithm algorithm;
 
 	/**
 	 * 
@@ -27,7 +29,27 @@ public final class Graph<E> {
 	 * @param pairs
 	 */
 	public Graph(List<E> uniqueElements, Set<Pair<E>> pairs) {
-		this(uniqueElements, pairs, DFS);
+		this(uniqueElements, pairs, DEPTH_FIRST_SEARCH, false);
+	}
+
+	/**
+	 * 
+	 * @param uniqueElements
+	 * @param pairs
+	 * @param searchRequestTime
+	 */
+	public Graph(List<E> uniqueElements, Set<Pair<E>> pairs, boolean searchRequestTime) {
+		this(uniqueElements, pairs, DEPTH_FIRST_SEARCH, searchRequestTime);
+	}
+
+	/**
+	 * 
+	 * @param uniqueElements
+	 * @param pairs
+	 * @param algorithm
+	 */
+	public Graph(List<E> uniqueElements, Set<Pair<E>> pairs, GraphSearchAlgorithm algorithm) {
+		this(uniqueElements, pairs, algorithm, false);
 	}
 
 	/**
@@ -37,8 +59,11 @@ public final class Graph<E> {
 	 * @param algorithm
 	 */
 	@SuppressWarnings("unchecked")
-	public Graph(List<E> uniqueElements, Set<Pair<E>> pairs, String algorithm) {
+	public Graph(List<E> uniqueElements, Set<Pair<E>> pairs, GraphSearchAlgorithm algorithm,
+			boolean searchRequestTime) {
 
+		this.algorithm = algorithm;
+		this.searchRequestTime = searchRequestTime;
 		adjacencyList = new Vertex[uniqueElements.size()];
 
 		// construct vertices
@@ -61,7 +86,9 @@ public final class Graph<E> {
 			adjacencyList[vertexIndex2]
 					.setAdjacencyList(new Edge(vertexIndex1, adjacencyList[vertexIndex2].getAdjacencyList()));
 		}
-		if (algorithm == DFS) {
+		if (searchRequestTime) {
+			this.connectedNodesGroup = null;
+		} else if (algorithm == DEPTH_FIRST_SEARCH) {
 			this.connectedNodesGroup = getConnectedNodesUsingDFS();
 		} else {
 			this.connectedNodesGroup = getConnectedNodesUsingBFS();
@@ -93,17 +120,38 @@ public final class Graph<E> {
 		if (indexVertex1 == -1 || indexVertex2 == -1)
 			return false;
 
+		if (searchRequestTime) {
+			if (algorithm == DEPTH_FIRST_SEARCH) {
+				return dfsMatch(indexVertex1, indexVertex2, new HashSet<Integer>());
+			} else {
+				return bfsMatch(indexVertex1, indexVertex2);
+			}
+		}
 		Optional<Set<Integer>> findFirst = getConnectedNodesGroup().stream()
 				.filter(set -> set.contains(indexVertex1) && set.contains(indexVertex2)).findFirst();
 		return findFirst.isPresent();
 	}
 
-	private void dfs(int vertexIndex, Set<Integer> vistedNodes, Set<Integer> connectedNodes) {
-		vistedNodes.add(vertexIndex);
-		connectedNodes.add(vertexIndex);
-		for (Edge edge = adjacencyList[vertexIndex].getAdjacencyList(); edge != null; edge = edge.getNext()) {
+	private boolean dfsMatch(int vertexIndexStart, int vertexIndexEnd, Set<Integer> vistedNodes) {
+		vistedNodes.add(vertexIndexStart);
+		if (vertexIndexStart == vertexIndexEnd)
+			return true;
+		for (Edge edge = adjacencyList[vertexIndexStart].getAdjacencyList(); edge != null; edge = edge.getNext()) {
 			if (!vistedNodes.contains(edge.getVertexIndex())) {
-				dfs(edge.getVertexIndex(), vistedNodes, connectedNodes);
+				boolean matched = dfsMatch(edge.getVertexIndex(), vertexIndexEnd, vistedNodes);
+				if (matched)
+					return true;
+			}
+		}
+		return false;
+	}
+
+	private void dfsCollect(int vertexIndexStart, Set<Integer> vistedNodes, Set<Integer> connectedNodes) {
+		vistedNodes.add(vertexIndexStart);
+		connectedNodes.add(vertexIndexStart);
+		for (Edge edge = adjacencyList[vertexIndexStart].getAdjacencyList(); edge != null; edge = edge.getNext()) {
+			if (!vistedNodes.contains(edge.getVertexIndex())) {
+				dfsCollect(edge.getVertexIndex(), vistedNodes, connectedNodes);
 			}
 		}
 	}
@@ -115,13 +163,13 @@ public final class Graph<E> {
 			if (!visitedNodes.contains(vertexIndex)) {
 				Set<Integer> connectedNodes = new HashSet<>();
 				connectedNodesGroup.add(connectedNodes);
-				dfs(vertexIndex, visitedNodes, connectedNodes);
+				dfsCollect(vertexIndex, visitedNodes, connectedNodes);
 			}
 		}
 		return connectedNodesGroup;
 	}
 
-	private void bfs(int vertexIndex, Set<Integer> connectedNodes) {
+	private void bfsCollect(int vertexIndex, Set<Integer> connectedNodes) {
 		Set<Integer> visitedNodes = new HashSet<>();
 		LinkedList<Integer> queue = new LinkedList<Integer>();
 		visitedNodes.add(vertexIndex);
@@ -140,11 +188,32 @@ public final class Graph<E> {
 		}
 	}
 
+	private boolean bfsMatch(int vertexIndexStart, int vertexIndexEnd) {
+		Set<Integer> visitedNodes = new HashSet<>();
+		LinkedList<Integer> queue = new LinkedList<Integer>();
+		visitedNodes.add(vertexIndexStart);
+		queue.add(vertexIndexStart);
+
+		while (queue.size() != 0) {
+			vertexIndexStart = queue.poll();
+			for (Edge edge = adjacencyList[vertexIndexStart].getAdjacencyList(); edge != null; edge = edge.getNext()) {
+				int vIndex = edge.getVertexIndex();
+				if (vertexIndexEnd == vIndex)
+					return true;
+				if (!visitedNodes.contains(vIndex)) {
+					visitedNodes.add(vIndex);
+					queue.add(vIndex);
+				}
+			}
+		}
+		return false;
+	}
+
 	private Set<Set<Integer>> getConnectedNodesUsingBFS() {
 		Set<Set<Integer>> connectedNodesGroup = new HashSet<>();
 		for (int vertexIndex = 0; vertexIndex < adjacencyList.length; vertexIndex++) {
 			Set<Integer> connectedNodes = new TreeSet<>();
-			bfs(vertexIndex, connectedNodes);
+			bfsCollect(vertexIndex, connectedNodes);
 			connectedNodesGroup.add(connectedNodes);
 		}
 		return connectedNodesGroup;

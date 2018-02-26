@@ -15,6 +15,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 import com.geocities.util.graph.Graph;
+import com.geocities.util.graph.GraphSearchAlgorithm;
 import com.geocities.util.graph.Pair;
 
 /**
@@ -32,6 +33,9 @@ public class CitiesPathFinderServiceImpl implements ICitiesPathFinderService {
 	
 	@Value("${geocities.graph.file}")
 	private String file;
+	
+	@Value("${geocities.graph.search.realtime}")
+	private String searchRealTime;	
 
 
 	/**
@@ -56,7 +60,7 @@ public class CitiesPathFinderServiceImpl implements ICitiesPathFinderService {
 			cities.add(directlyConnectedCities.getRight());
 		}
 		scanner.close();
-		graph = new Graph<>(new ArrayList<>(cities), directCities, algorithm);
+		graph = new Graph<>(new ArrayList<>(cities), directCities, GraphSearchAlgorithm.valueOf(algorithm), Boolean.valueOf(searchRealTime));
 	}
 
 	/**
